@@ -194,7 +194,11 @@ class Maze2(height_param: Int, width_param: Int) {
 
         var buffer: Graphics = mazeImage.graphics
         buffer = buffer as Graphics2D
-
+        buffer.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF)
+        buffer.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF)
+        buffer.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF)
+//        buffer.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED)
+//        buffer.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_RENDER_SPEED)
         buffer.color = Color.CYAN
         buffer.font = Font("Dialog", Font.PLAIN, spacing)
 
