@@ -1,3 +1,10 @@
+import java.awt.*
+import java.awt.image.BufferedImage
+import java.awt.image.RenderedImage
+import java.io.File
+import javax.imageio.ImageIO
+
+
 // Cell: Stores flags for the cell walls and visitation.
 class Cell2 {
     // Was the cell visited already.
@@ -8,6 +15,9 @@ class Cell2 {
     var southBound: Boolean = true
     var eastBound: Boolean = true
     var westBound: Boolean = true
+
+    // Store drawing symbol once determined.
+    var symbol: String = " "
 }
 
 // Maze: Holds the rules for creating and displaying a maze.
@@ -20,12 +30,18 @@ class Maze2(height_param: Int, width_param: Int) {
     // Maze height x width
     private val height = height_param
     private val width = width_param
+    private val startRow = (0 until height).random()
+    private val startColumn = (0 until width).random()
 
     // Finished generating when visitedCount = sizeOfMaze.
     private val sizeOfMaze = height * width
+
+    // Drawing positions
+    private val spacing = 10
+    private val smallMazeOffset = 6
+
     private var visitedCount = 0
-    private val startRow = (0 until height).random()
-    private val startColumn = (0 until width).random()
+
 
     // The maze built from cells.
     var maze: MutableList<MutableList<Cell2>> = mutableListOf()
@@ -140,39 +156,80 @@ class Maze2(height_param: Int, width_param: Int) {
                 // Place unicode blocks based on the cell walls.
                 if (south && !east && !north && !west) {
                     print("\u2569")        // \u2569 - ╩
+                    maze[j][i].symbol = "\u2569"
                 } else if (!south && !east && north && !west) {
                     print("\u2566")        // \u2566 - ╦
+                    maze[j][i].symbol = "\u2566"
                 } else if (!south && east && !north && !west) {
                     print("\u2563")        // \u2563 - ╣
+                    maze[j][i].symbol = "\u2563"
                 } else if (!south && !east && !north && west) {
                     print("\u2560")        // \u2560 - ╠
+                    maze[j][i].symbol = "\u2560"
                 } else if (south && east && !north && west) {
                     print("\u2568")        // \u2568 - ╨
+                    maze[j][i].symbol = "\u2568"
                 } else if (!south && east && north && west) {
                     print("\u2565")        // \u2565 - ╥
+                    maze[j][i].symbol = "\u2565"
                 } else if (south && east && north && !west) {
                     print("\u2561")        // \u2561 - ╡
+                    maze[j][i].symbol = "\u2561"
                 } else if (south && !east && north && west) {
                     print("\u255e")        // \u255e - ╞
+                    maze[j][i].symbol = "\u255e"
                 } else if (!south && east && north && !west) {
                     print("\u2557")        // \u2557 - ╗
+                    maze[j][i].symbol = "\u2557"
                 } else if (south && !east && !north && west) {
                     print("\u255a")        // \u255a - ╚
+                    maze[j][i].symbol = "\u255a"
                 } else if (south && east && !north && !west) {
                     print("\u255d")        // \u255d - ╝
+                    maze[j][i].symbol = "\u255d"
                 } else if (!south && !east && north && west) {
                     print("\u2554")        // \u2554 - ╔
+                    maze[j][i].symbol = "\u2554"
                 } else if (!south && east && !north && west) {
                     print("\u2551")        // \u2551 - ║
+                    maze[j][i].symbol = "\u2551"
                 } else if (south && !east && north && !west) {
                     print("\u2550")        // \u2550 - ═
+                    maze[j][i].symbol = "\u2550"
                 } else {
                     print("\u256c")        // \u256c - ╬
+                    maze[j][i].symbol = "\u256c"
                 }
             }
         }
     }
+
+    fun writeImage(): BufferedImage {
+        // Buffered image to save the maze to and its drawing component.
+        val mazeImage: BufferedImage = BufferedImage((width * spacing) + width,
+            (height * spacing) + height, BufferedImage.TYPE_3BYTE_BGR)
+        val buffer: Graphics = mazeImage.graphics
+
+        // Start writing maze to image near the image center.
+        var xPosition = (mazeImage.width / 2) / spacing
+        var yPosition = (mazeImage.height / 2) / spacing + smallMazeOffset
+
+        for (i in 0 until width) {
+            for (j in 0 until height) {
+                buffer.drawString(maze[i][j].symbol, (i * spacing) + xPosition, (j * spacing) + yPosition)
+            }
+        }
+
+        return mazeImage
+    }
+
+    fun writeImageToFile(img: BufferedImage){
+
+        val outputFile: File = File("maze.jpg")
+        ImageIO.write(img, "jpg", outputFile)
+    }
 }
+
 
 fun main() {
     println("Maze Generator")
@@ -183,4 +240,7 @@ fun main() {
     var myMaze = Maze2(Integer.valueOf(size), Integer.valueOf(size));
     myMaze.createMaze()
     myMaze.drawMaze()
+
+    val finalMaze: BufferedImage = myMaze.writeImage()
+    myMaze.writeImageToFile(finalMaze)
 }
