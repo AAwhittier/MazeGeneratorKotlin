@@ -2,7 +2,9 @@ import java.awt.*
 import java.awt.image.BufferedImage
 import java.awt.image.RenderedImage
 import java.io.File
+import java.util.*
 import javax.imageio.ImageIO
+import kotlin.collections.ArrayDeque
 
 
 // Cell: Stores flags for the cell walls and visitation.
@@ -37,7 +39,7 @@ class Maze2(height_param: Int, width_param: Int) {
     private val sizeOfMaze = height * width
 
     // Drawing positions
-    private val spacing = 10
+    private val spacing = 12
     private val smallMazeOffset = 6
 
     private var visitedCount = 0
@@ -143,61 +145,42 @@ class Maze2(height_param: Int, width_param: Int) {
 
     fun drawMaze() {
         for (i in 0 until width) {
-            println()
             for (j in 0 until height) {
                 val north = maze[j][i].northBound
                 val east = maze[j][i].eastBound
                 val south = maze[j][i].southBound
                 val west = maze[j][i].westBound
 
-                // Change color of maze start cell and maze end cell. -- Future
-                print(BLUE)
-
                 // Place unicode blocks based on the cell walls.
                 if (south && !east && !north && !west) {
-                    print("\u2569")        // \u2569 - ╩
                     maze[j][i].symbol = "\u2569"
                 } else if (!south && !east && north && !west) {
-                    print("\u2566")        // \u2566 - ╦
                     maze[j][i].symbol = "\u2566"
                 } else if (!south && east && !north && !west) {
-                    print("\u2563")        // \u2563 - ╣
                     maze[j][i].symbol = "\u2563"
                 } else if (!south && !east && !north && west) {
-                    print("\u2560")        // \u2560 - ╠
                     maze[j][i].symbol = "\u2560"
                 } else if (south && east && !north && west) {
-                    print("\u2568")        // \u2568 - ╨
                     maze[j][i].symbol = "\u2568"
                 } else if (!south && east && north && west) {
-                    print("\u2565")        // \u2565 - ╥
                     maze[j][i].symbol = "\u2565"
                 } else if (south && east && north && !west) {
-                    print("\u2561")        // \u2561 - ╡
                     maze[j][i].symbol = "\u2561"
                 } else if (south && !east && north && west) {
-                    print("\u255e")        // \u255e - ╞
                     maze[j][i].symbol = "\u255e"
                 } else if (!south && east && north && !west) {
-                    print("\u2557")        // \u2557 - ╗
                     maze[j][i].symbol = "\u2557"
                 } else if (south && !east && !north && west) {
-                    print("\u255a")        // \u255a - ╚
                     maze[j][i].symbol = "\u255a"
                 } else if (south && east && !north && !west) {
-                    print("\u255d")        // \u255d - ╝
                     maze[j][i].symbol = "\u255d"
                 } else if (!south && !east && north && west) {
-                    print("\u2554")        // \u2554 - ╔
                     maze[j][i].symbol = "\u2554"
                 } else if (!south && east && !north && west) {
-                    print("\u2551")        // \u2551 - ║
                     maze[j][i].symbol = "\u2551"
                 } else if (south && !east && north && !west) {
-                    print("\u2550")        // \u2550 - ═
                     maze[j][i].symbol = "\u2550"
                 } else {
-                    print("\u256c")        // \u256c - ╬
                     maze[j][i].symbol = "\u256c"
                 }
             }
@@ -211,6 +194,7 @@ class Maze2(height_param: Int, width_param: Int) {
 
         val buffer: Graphics = mazeImage.graphics
         buffer.color = Color.CYAN
+        buffer.font = Font("Dialog", Font.PLAIN, spacing)
 
         // Maze is written to image offset from center.
         var xPosition = (mazeImage.width / 2) / spacing
