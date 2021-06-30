@@ -207,8 +207,10 @@ class Maze2(height_param: Int, width_param: Int) {
     fun writeImage(): BufferedImage {
         // Buffered image to save the maze to and its drawing component.
         val mazeImage: BufferedImage = BufferedImage((width * spacing) + width,
-            (height * spacing) + height, BufferedImage.TYPE_3BYTE_BGR)
+            (height * spacing) + height, BufferedImage.TYPE_USHORT_565_RGB) // 2 bytes per pixel
+
         val buffer: Graphics = mazeImage.graphics
+        buffer.color = Color.CYAN
 
         // Start writing maze to image near the image center.
         var xPosition = (mazeImage.width / 2) / spacing
