@@ -192,9 +192,12 @@ class Maze2(height_param: Int, width_param: Int) {
         val mazeImage: BufferedImage = BufferedImage((width * spacing) + width,
             (height * spacing) + height, BufferedImage.TYPE_USHORT_565_RGB) // 2 bytes per pixel
 
-        val buffer: Graphics = mazeImage.graphics
+        var buffer: Graphics = mazeImage.graphics
+        buffer = buffer as Graphics2D
+
         buffer.color = Color.CYAN
         buffer.font = Font("Dialog", Font.PLAIN, spacing)
+
 
         // Maze is written to image offset from center.
         var xPosition = (mazeImage.width / 2) / spacing
