@@ -196,14 +196,12 @@ class Maze2(height_param: Int, width_param: Int) {
         buffer = buffer as Graphics2D
         buffer.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF)
         buffer.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF)
-        buffer.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_OFF)
-//        buffer.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED)
-//        buffer.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_RENDER_SPEED)
+        buffer.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
+        buffer.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED)
         buffer.color = Color.CYAN
-        buffer.font = Font("Dialog", Font.PLAIN, spacing)
+        buffer.font = Font("Dialog", Font.PLAIN, spacing + 4)
 
-
-        // Maze is written to image offset from center.
+        // Maze is written to image offset from center divided into a grid based on text size.
         var xPosition = (mazeImage.width / 2) / spacing
         var yPosition = (mazeImage.height / 2) / spacing + smallMazeOffset
 
@@ -217,9 +215,11 @@ class Maze2(height_param: Int, width_param: Int) {
     }
 
     fun writeImageToFile(img: BufferedImage){
+        val outputFileJpg = File("maze.jpg")
+        ImageIO.write(img, "jpg", outputFileJpg)
 
-        val outputFile = File("maze.jpg")
-        ImageIO.write(img, "jpg", outputFile)
+        val outputFilePng = File("maze.png")
+        ImageIO.write(img, "png", outputFilePng)
     }
 }
 
