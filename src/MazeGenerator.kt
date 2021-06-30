@@ -59,7 +59,7 @@ class Maze2(height_param: Int, width_param: Int) {
             maze.add(cells)
         }
 
-        // Initialize the maze to a staring point.
+        // Initialize the maze to a starting point.
         path.add(Pair(startRow, startColumn))
         visitedCount += 1
         maze[startRow][startColumn].visited = true
@@ -212,7 +212,7 @@ class Maze2(height_param: Int, width_param: Int) {
         val buffer: Graphics = mazeImage.graphics
         buffer.color = Color.CYAN
 
-        // Start writing maze to image near the image center.
+        // Maze is written to image offset from center.
         var xPosition = (mazeImage.width / 2) / spacing
         var yPosition = (mazeImage.height / 2) / spacing + smallMazeOffset
 
@@ -227,7 +227,7 @@ class Maze2(height_param: Int, width_param: Int) {
 
     fun writeImageToFile(img: BufferedImage){
 
-        val outputFile: File = File("maze.jpg")
+        val outputFile = File("maze.jpg")
         ImageIO.write(img, "jpg", outputFile)
     }
 }
