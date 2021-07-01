@@ -2,6 +2,7 @@ import java.awt.*
 import java.awt.image.BufferedImage
 import java.awt.image.RenderedImage
 import java.io.File
+import java.io.IOException
 import java.util.*
 import javax.imageio.ImageIO
 import kotlin.collections.ArrayDeque
@@ -24,10 +25,6 @@ class Cell2 {
 
 // Maze: Holds the rules for creating and displaying a maze.
 class Maze2(height_param: Int, width_param: Int) {
-    // Green - Maze start - Blue - Maze Path - Red - Maze End -- future
-    val RED: String? = "\u001B[31m"
-    val GREEN = "\u001B[32m"
-    val BLUE = "\u001b[0;94m"
 
     // Maze height x width
     private val height = height_param
@@ -37,17 +34,14 @@ class Maze2(height_param: Int, width_param: Int) {
 
     // Finished generating when visitedCount = sizeOfMaze.
     private val sizeOfMaze = height * width
+    private var visitedCount = 0
 
     // Drawing positions
     private val spacing = 12
     private val smallMazeOffset = 6
 
-    private var visitedCount = 0
-
-
     // The maze built from cells.
     var maze: MutableList<MutableList<Cell2>> = mutableListOf()
-
     // Stack to track our pathway through the maze until visitedCount = sizeOfMaze
     private var path = ArrayDeque<Pair<Int, Int>>()
 
@@ -187,19 +181,25 @@ class Maze2(height_param: Int, width_param: Int) {
         }
     }
 
-    fun writeImage(): BufferedImage {
+    fun renderImage(): BufferedImage {
         // Buffered image to save the maze to and its drawing component.
         val mazeImage: BufferedImage = BufferedImage((width * spacing) + width,
             (height * spacing) + height, BufferedImage.TYPE_USHORT_565_RGB) // 2 bytes per pixel
 
+        // Setup the graphics for drawing on the current pc.
         var buffer: Graphics = mazeImage.graphics
         buffer = buffer as Graphics2D
+        buffer.color = Color.CYAN
+        buffer.font = Font("Dialog", Font.PLAIN, spacing + 4)
+        // Get data about current pc environment for rendering.
+        var pcEnv = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints") as Map<*, *>
+        if (pcEnv != null){
+            buffer.addRenderingHints(pcEnv)
+        }
         buffer.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF)
         buffer.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF)
         buffer.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
         buffer.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED)
-        buffer.color = Color.CYAN
-        buffer.font = Font("Dialog", Font.PLAIN, spacing + 4)
 
         // Maze is written to image offset from center divided into a grid based on text size.
         var xPosition = (mazeImage.width / 2) / spacing
@@ -215,11 +215,13 @@ class Maze2(height_param: Int, width_param: Int) {
     }
 
     fun writeImageToFile(img: BufferedImage){
-        val outputFileJpg = File("maze.jpg")
-        ImageIO.write(img, "jpg", outputFileJpg)
-
-        val outputFilePng = File("maze.png")
-        ImageIO.write(img, "png", outputFilePng)
+        // Write image to png file.
+        try {
+            val outputFilePng = File("maze.png")
+            ImageIO.write(img, "png", outputFilePng)
+        } catch (e: IOException) {
+            print("Error writing image: $e")
+        }
     }
 }
 
@@ -227,13 +229,13 @@ class Maze2(height_param: Int, width_param: Int) {
 fun main() {
     println("Maze Generator")
     print("Enter maze size: ")
-    val size = readLine()
+    val size = readLine()!!.toInt()
     println()
 
     var myMaze = Maze2(Integer.valueOf(size), Integer.valueOf(size));
     myMaze.createMaze()
     myMaze.drawMaze()
 
-    val finalMaze: BufferedImage = myMaze.writeImage()
+    val finalMaze: BufferedImage = myMaze.renderImage()
     myMaze.writeImageToFile(finalMaze)
 }
