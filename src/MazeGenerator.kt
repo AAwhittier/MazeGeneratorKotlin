@@ -32,6 +32,11 @@ class Maze2(height_param: Int, width_param: Int) {
     private val startRow = (0 until height).random()
     private val startColumn = (0 until width).random()
 
+    // Store possible endpoints when the algorithm begins backtracking to create the longest path.
+    private var isBacktracking = false
+    private var endPath = ArrayDeque<Pair<Pair<Int, Int>, List<Pair<Int, Int>>>>() // Endpoint (x, y), path TODO remove unused endpoint
+
+
     // Finished generating when visitedCount = sizeOfMaze.
     private val sizeOfMaze = height * width
     private var visitedCount = 0
@@ -75,25 +80,37 @@ class Maze2(height_param: Int, width_param: Int) {
                 maze[row][column - 1].southBound = false
                 maze[row][column].northBound = false
                 path.add(Pair(row, column - 1))
+                isBacktracking = false
             } else if (moveTo == "South") {
                 maze[row][column + 1].visited = true
                 maze[row][column].southBound = false
                 maze[row][column + 1].northBound = false
                 path.add(Pair(row, column + 1))
+                isBacktracking = false
             } else if (moveTo == "East") {
                 maze[row + 1][column].visited = true
                 maze[row + 1][column].westBound = false
                 maze[row][column].eastBound = false
                 path.add(Pair(row + 1, column))
+                isBacktracking = false
             } else if (moveTo == "West") {
                 maze[row - 1][column].visited = true
                 maze[row - 1][column].eastBound = false
                 maze[row][column].westBound = false
                 path.add(Pair(row - 1, column))
+                isBacktracking = false
             }
-            // Backtrack until we find a cell with an open direction. Remove from stack.
             else {
+                // Store the longest path through the maze.
+                if(endPath.isEmpty() && !isBacktracking){
+                    endPath.add(Pair(path.last(), path.toList()))
+                }
+                else if (!isBacktracking && path.size > endPath.last().second.size){
+                    endPath.add(Pair(path.last(), path.toList()))
+                }
+                // Backtrack until we find a cell with an open direction. Remove from stack.
                 path.removeLast()
+                isBacktracking = true
             }
         }
     }
@@ -137,7 +154,7 @@ class Maze2(height_param: Int, width_param: Int) {
         return direction
     }
 
-    fun drawMaze() {
+    fun selectMazeSymbol() {
         for (i in 0 until width) {
             for (j in 0 until height) {
                 val north = maze[j][i].northBound
@@ -181,7 +198,7 @@ class Maze2(height_param: Int, width_param: Int) {
         }
     }
 
-    fun renderImage(): BufferedImage {
+    fun renderImage(renderSolution: Boolean): BufferedImage {
         // Buffered image to save the maze to and its drawing component.
         val mazeImage: BufferedImage = BufferedImage((width * spacing) + width,
             (height * spacing) + height, BufferedImage.TYPE_USHORT_565_RGB) // 2 bytes per pixel
@@ -207,17 +224,36 @@ class Maze2(height_param: Int, width_param: Int) {
 
         for (i in 0 until width) {
             for (j in 0 until height) {
-                buffer.drawString(maze[i][j].symbol, (i * spacing) + xPosition, (j * spacing) + yPosition)
+                // Maze start.
+                if(startRow == i && startColumn == j){ // TODO update to pair
+                    buffer.color = Color.GREEN
+                    buffer.drawString(maze[i][j].symbol, (i * spacing) + xPosition, (j * spacing) + yPosition)
+                }
+                // Maze end.
+                else if (Pair(i, j) == endPath.last().second[endPath.last().second.size - 1]) {
+                    buffer.color = Color.MAGENTA
+                    buffer.drawString(maze[i][j].symbol, (i * spacing) + xPosition, (j * spacing) + yPosition)
+                }
+                // Responsible for printing path solution.
+                else if (Pair(i, j) in endPath.last().second && renderSolution) {
+                    buffer.color = Color.RED
+                    buffer.drawString(maze[i][j].symbol, (i * spacing) + xPosition, (j * spacing) + yPosition)
+                }
+                // All other maze tiles.
+                else {
+                    buffer.color = Color.CYAN
+                    buffer.drawString(maze[i][j].symbol, (i * spacing) + xPosition, (j * spacing) + yPosition)
+                }
             }
         }
 
         return mazeImage
     }
 
-    fun writeImageToFile(img: BufferedImage){
+    fun writeImageToFile(img: BufferedImage, fileName: String){
         // Write image to png file.
         try {
-            val outputFilePng = File("maze.png")
+            val outputFilePng = File(fileName)
             ImageIO.write(img, "png", outputFilePng)
         } catch (e: IOException) {
             print("Error writing image: $e")
@@ -232,10 +268,15 @@ fun main() {
     val size = readLine()!!.toInt()
     println()
 
+    // Create the maze data.
     var myMaze = Maze2(Integer.valueOf(size), Integer.valueOf(size));
     myMaze.createMaze()
-    myMaze.drawMaze()
+    myMaze.selectMazeSymbol()
 
-    val finalMaze: BufferedImage = myMaze.renderImage()
-    myMaze.writeImageToFile(finalMaze)
+    // Render and write images.
+    var finalMaze: BufferedImage = myMaze.renderImage(false)
+    myMaze.writeImageToFile(finalMaze, "maze.png")
+    finalMaze = myMaze.renderImage(true)
+    myMaze.writeImageToFile(finalMaze, "mazesolution.png")
+
 }
