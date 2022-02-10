@@ -1,5 +1,5 @@
 # Overview
-Welcome to my Kotlin maze generator. I created this project as a learning experience
+This project was created as a learning experience
 to learn depth first traversal and the kotlin language.
 
 This maze generator uses depth first traversal to walk through the maze grid until it
@@ -19,11 +19,6 @@ showing the solution.
 Maze | Solution
 :-------------------------:|:-------------------------:
 ![The Maze](mazeexample.png)|![Maze Solution](mazesolutionexample.png)
-
-# Video Documentation 
-[Maze Generator]()
-
-[Algorithm Video(Old)](https://youtu.be/kncwkPHuK7Q)
 
 
 # Development Environment
